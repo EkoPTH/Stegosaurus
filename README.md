@@ -53,4 +53,4 @@ stego-web/
 ## Catatan keamanan
 
 PBEWithMD5AndDES, DES, salt tetap, dan LSB steganography adalah teknik klasik yang **lemah menurut standar modern**.
-Cocok untuk pembelajaran dan demonstrasi, bukan untuk melindungi data sensitif.
+
