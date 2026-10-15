@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Audio Steganography &amp; Cipher Dashboard</title>
+  <link rel="stylesheet" href="css/style.css">
+<style>
+  #view-stego #s-preview { display: block; max-width: 100%; max-height: 220px; margin-top: 10px; border-radius: 6px; }
+  #view-stego #s-preview[hidden], #view-stego #s-canvas { display: none; }
+  #view-stego .two-col textarea { width: 100%; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- ===================================================== SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">DASHBOARD</div>
+    <nav>
+      <button class="nav active" data-view="home">Beranda</button>
+      <button class="nav" data-view="embed">Embed (Teks → Audio)</button>
+      <button class="nav" data-view="extract">Extract (Audio → Teks)</button>
+      <button class="nav" data-view="cipher">Delta Cipher</button>
+      <button class="nav" data-view="stego">Stegosaurus</button>
+    </nav>
+    <div class="sidebar-foot">
+      <button class="nav" id="btnHelp">Help / User Guide</button>
+    </div>
+  </aside>
+
+  <!-- ===================================================== MAIN -->
+  <main class="main">
+    <header class="topbar"><h1 id="viewTitle">Beranda</h1></header>
+
+    <!-- ---------------------------------------------- BERANDA -->
+    <section class="view active" id="view-home">
+      <h2>Selamat datang</h2>
+      <p>Pilih salah satu fitur di bawah atau lewat menu di sebelah kiri.</p>
+      <div class="tiles">
+        <div class="tile">
+          <h3>Embed</h3>
+          <p>Sembunyikan teks (ketik langsung atau dari file .txt) ke dalam file audio .au dengan password.</p>
+          <button class="btn" data-goto="embed">Buka</button>
+        </div>
+        <div class="tile">
+          <h3>Extract</h3>
+          <p>Ambil kembali teks tersembunyi dari audio terenkripsi menggunakan password.</p>
+          <button class="btn" data-goto="extract">Buka</button>
+        </div>
+        <div class="tile">
+          <h3>Delta Cipher</h3>
+          <p>Enkripsi dan dekripsi teks berdasarkan aplikasi persandian website Telik Sandi versi Delta.</p>
+          <button class="btn" data-goto="cipher">Buka</button>
+        </div>
+        <div class="tile">
+          <h3>Stegosaurus</h3>
+          <p>Sembunyikan pesan (dengan password opsional) di dalam gambar, lalu ambil kembali dari gambar hasilnya.</p>
+          <button class="btn" data-goto="stego">Buka</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------------------------------------------- EMBED -->
+    <section class="view" id="view-embed">
+      <fieldset>
+        <legend>1. Audio</legend>
+        <div class="row">
+          <label class="btn file-btn">Input Audio File (.au)
+            <input type="file" id="e-audio" accept=".au,.snd,audio/basic">
+          </label>
+          <span class="file-label" id="e-audio-label">File Not Choosen</span>
+        </div>
+        <div class="row">
+          <button class="btn" id="e-play" disabled>Play</button>
+          <button class="btn" id="e-stop" disabled>Stop</button>
+          <span class="muted" id="e-audio-info"></span>
+          <button class="btn link" id="e-sample" type="button">Buat audio contoh (.au)</button>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Teks yang disembunyikan</legend>
+        <div class="row">
+          <label><input type="radio" name="e-mode" value="write" checked> Write Text</label>
+          <label><input type="radio" name="e-mode" value="file"> Text File (.txt)</label>
+        </div>
+        <div id="e-write">
+          <textarea id="e-text" rows="6" placeholder="Ketik teks rahasia di sini..."></textarea>
+        </div>
+        <div id="e-file" hidden>
+          <div class="row">
+            <label class="btn file-btn">Input Text File (.txt)
+              <input type="file" id="e-txtfile" accept=".txt,text/plain">
+            </label>
+            <span class="file-label" id="e-txtfile-label">File Not Choosen</span>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>3. Password</legend>
+        <div class="row">
+          <label for="e-pass">Password To Encrypt</label>
+          <input type="password" id="e-pass" autocomplete="off" spellcheck="false">
+          <label class="inline"><input type="checkbox" id="e-show"> tampilkan</label>
+          <button class="btn" id="e-clear" type="button">Clear</button>
+        </div>
+        <p class="muted small">Password hanya boleh karakter ASCII (sama seperti versi Java).</p>
+      </fieldset>
+
+      <div class="row actions">
+        <button class="btn primary" id="e-run">Encrypt Audio File</button>
+        <a class="btn" id="e-download" hidden>Unduh hasil</a>
+        <button class="btn" id="e-finish" disabled>Finish</button>
+      </div>
+      <div class="result" id="e-result" hidden></div>
+    </section>
+
+    <!-- ---------------------------------------------- EXTRACT -->
+    <section class="view" id="view-extract">
+      <fieldset>
+        <legend>1. Audio terenkripsi</legend>
+        <div class="row">
+          <label class="btn file-btn">Encryped Audio File (.au)
+            <input type="file" id="x-audio" accept=".au,.snd,audio/basic">
+          </label>
+          <span class="file-label" id="x-audio-label">File Not Choosen</span>
+        </div>
+        <div class="row">
+          <button class="btn" id="x-play" disabled>Play</button>
+          <button class="btn" id="x-stop" disabled>Stop</button>
+          <span class="muted" id="x-audio-info"></span>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>2. Password</legend>
+        <div class="row">
+          <label for="x-pass">Password To Decrypt</label>
+          <input type="password" id="x-pass" autocomplete="off" spellcheck="false">
+          <label class="inline"><input type="checkbox" id="x-show"> tampilkan</label>
+          <button class="btn" id="x-clear" type="button">Clear</button>
+        </div>
+      </fieldset>
+
+      <div class="row actions">
+        <button class="btn primary" id="x-run">Extract Text</button>
+        <a class="btn" id="x-download" hidden>Unduh .txt</a>
+        <button class="btn" id="x-finish" disabled>Finish</button>
+      </div>
+
+      <fieldset>
+        <legend>Extracted Text From Audio</legend>
+        <textarea id="x-text" rows="8" readonly></textarea>
+      </fieldset>
+      <div class="result" id="x-result" hidden></div>
+    </section>
+
+    <!-- ---------------------------------------------- DELTA CIPHER -->
+    <section class="view" id="view-cipher">
+      <div class="two-col">
+        <fieldset>
+          <legend>Input</legend>
+          <textarea id="c-left" rows="12" class="mono"></textarea>
+        </fieldset>
+        <fieldset>
+          <legend>Hasil</legend>
+          <textarea id="c-right" rows="12" class="mono" readonly></textarea>
+        </fieldset>
+      </div>
+      <div class="row">
+        <label><input type="radio" name="c-mode" id="c-enc" value="1" checked> Enkripsi</label>
+        <label><input type="radio" name="c-mode" id="c-dec" value="2" disabled> Dekripsi</label>
+        <span class="spacer"></span>
+        <label for="c-key">PASSWORD :</label>
+        <input type="text" id="c-key" autocomplete="off" spellcheck="false">
+        <button class="btn" id="c-default" type="button">Default</button>
+        <button class="btn" id="c-copy" type="button">Salin hasil</button>
+      </div>
+    </section>
+    <!-- ---------------------------------------------- STEGOSAURUS -->
+    <section class="view" id="view-stego">
+      <fieldset>
+        <legend>1. Gambar media</legend>
+        <div class="row">
+          <label class="btn file-btn">Input Image File (.png / .jpg)
+            <input type="file" id="s-file" accept="image/*">
+          </label>
+          <span class="file-label" id="s-file-label">File Not Choosen</span>
+        </div>
+        <p class="muted small" id="s-info"></p>
+        <img id="s-preview" alt="Pratinjau gambar" hidden>
+      </fieldset>
+
+      <div class="two-col">
+        <fieldset>
+          <legend>2. Sembunyikan sandi</legend>
+          <textarea id="s-message" rows="6" maxlength="1000" placeholder="Ketik pesan tersembunyi di sini..."></textarea>
+          <div class="row">
+            <label for="s-pass">Password (opsional)</label>
+            <input type="password" id="s-pass" autocomplete="off" spellcheck="false">
+            <label class="inline"><input type="checkbox" id="s-show"> tampilkan</label>
+          </div>
+          <p class="muted small">Tanpa password pesan tidak terenkripsi. Dengan password, pesan maks. ± 640 karakter.</p>
+          <div class="row actions">
+            <button class="btn primary" id="s-encode" type="button">Sembunyikan Sandi</button>
+            <a class="btn" id="s-download" hidden>Unduh hasil (PNG)</a>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>3. Kembalikan sandi</legend>
+          <div class="row">
+            <label for="s-pass2">Password</label>
+            <input type="password" id="s-pass2" autocomplete="off" spellcheck="false">
+            <label class="inline"><input type="checkbox" id="s-show2"> tampilkan</label>
+          </div>
+          <div class="row actions">
+            <button class="btn primary" id="s-decode" type="button">Kembalikan Sandi</button>
+          </div>
+          <textarea id="s-revealed" rows="6" readonly placeholder="Pesan yang ditemukan tampil di sini"></textarea>
+        </fieldset>
+      </div>
+
+      <div class="row actions">
+        <button class="btn" id="s-finish" type="button" disabled>Finish</button>
+      </div>
+      <div class="result" id="s-result" hidden></div>
+      <canvas id="s-canvas" hidden></canvas>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<dialog id="helpDialog">
+  <h3>User Guide</h3>
+  <pre id="helpText"></pre>
+  <form method="dialog"><button class="btn primary">Tutup</button></form>
+</dialog>
+
+<script src="js/sjcl.js"></script>
+<script src="js/core.js"></script>
+<script src="js/app.js"></script>
+<script src="js/stego.js"></script>
+</body>
+</html>
